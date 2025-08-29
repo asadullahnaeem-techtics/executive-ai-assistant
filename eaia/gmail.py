@@ -30,13 +30,13 @@ _SCOPES = [
 
 async def get_credentials(
     user_email: str,
-    langsmith_api_key: str | None = None
+    LS_API_KEY: str | None = None
 ) -> Credentials:
     """Get Google API credentials using langchain auth-client or service account.
     
     Args:
         user_email: User's Gmail email address (used as user_id for auth)
-        langsmith_api_key: LangSmith API key for auth client
+        LS_API_KEY: LangSmith API key for auth client
         
     Returns:
         Google OAuth2 credentials
@@ -54,9 +54,9 @@ async def get_credentials(
             print(f"Service account auth failed: {e}, falling back to OAuth")
     
     # Fall back to OAuth flow
-    api_key = langsmith_api_key or os.getenv("LANGSMITH_API_KEY")
+    api_key = LS_API_KEY or os.getenv("LS_API_KEY")
     if not api_key:
-        raise ValueError("LANGSMITH_API_KEY environment variable must be set for OAuth flow")
+        raise ValueError("LS_API_KEY environment variable must be set for OAuth flow")
     
     client = Client(api_key=api_key)
     

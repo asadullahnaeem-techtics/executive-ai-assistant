@@ -8,15 +8,19 @@ import os
 import json
 from pathlib import Path
 from langchain_auth import Client
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 
 async def setup_google_oauth_provider():
     """Create Google OAuth provider configuration."""
     
     # Get LangSmith API key
-    api_key = os.getenv("LANGSMITH_API_KEY")
+    api_key = os.getenv("LS_API_KEY")
     if not api_key:
-        raise ValueError("LANGSMITH_API_KEY environment variable must be set")
+        raise ValueError("LS_API_KEY environment variable must be set")
     
     # Look for Google OAuth client secrets
     secrets_dir = Path(__file__).parent.parent / "eaia" / ".secrets"
