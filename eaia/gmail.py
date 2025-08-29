@@ -8,6 +8,7 @@ import json
 
 from dateutil import parser
 from google.oauth2.credentials import Credentials
+from google.oauth2 import service_account
 from googleapiclient.discovery import build
 import base64
 from email.mime.multipart import MIMEMultipart
@@ -31,7 +32,7 @@ async def get_credentials(
     user_email: str,
     langsmith_api_key: str | None = None
 ) -> Credentials:
-    """Get Google API credentials using langchain auth-client.
+    """Get Google API credentials using langchain auth-client or service account.
     
     Args:
         user_email: User's Gmail email address (used as user_id for auth)
@@ -40,9 +41,22 @@ async def get_credentials(
     Returns:
         Google OAuth2 credentials
     """
+    # First try to use service account credentials if available
+    service_account_path = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
+    if service_account_path and os.path.exists(service_account_path):
+        try:
+            from google.oauth2 import service_account
+            creds = service_account.Credentials.from_service_account_file(
+                service_account_path, scopes=_SCOPES
+            )
+            return creds
+        except Exception as e:
+            print(f"Service account auth failed: {e}, falling back to OAuth")
+    
+    # Fall back to OAuth flow
     api_key = langsmith_api_key or os.getenv("LANGSMITH_API_KEY")
     if not api_key:
-        raise ValueError("LANGSMITH_API_KEY environment variable must be set")
+        raise ValueError("LANGSMITH_API_KEY environment variable must be set for OAuth flow")
     
     client = Client(api_key=api_key)
     
